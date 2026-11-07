@@ -7,20 +7,22 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { CivicIcon } from '../components/CivicIcon';
 
 // Pantallas
-import LoginScreen from '../screens/LoginScreen';
-import RegisterScreen from '../screens/RegisterScreen';
-import EconomiaLocalScreen from '../screens/EconomiaLocalScreen';
-import DetalleEconomiaLocalScreen from '../screens/DetalleEconomiaLocalScreen';
-import EconomiaSolidariaScreen from '../screens/EconomiaSolidariaScreen';
-import DetalleSolidariaScreen from '../screens/DetalleSolidariaScreen';
-import TableroEmergenciasScreen from '../screens/TableroEmergenciasScreen';
-import DetalleEmergenciaScreen from '../screens/DetalleEmergenciaScreen';
-import PublicarPaso1Screen from '../screens/PublicarPaso1Screen';
-import PublicarPaso2Screen from '../screens/PublicarPaso2Screen';
-import PublicarComercioScreen from '../screens/PublicarComercioScreen';
-import PublicarSolidariaScreen from '../screens/PublicarSolidariaScreen';
-import PublicarEmergenciaScreen from '../screens/PublicarEmergenciaScreen';
-import PerfilScreen from '../screens/PerfilScreen';
+import {
+  LoginScreen,
+  RegisterScreen,
+  EconomiaLocalScreen,
+  DetalleEconomiaLocalScreen,
+  EconomiaSolidariaScreen,
+  DetalleSolidariaScreen,
+  TableroEmergenciasScreen,
+  DetalleEmergenciaScreen,
+  PublicarPaso1Screen,
+  PublicarPaso2Screen,
+  PublicarComercioScreen,
+  PublicarSolidariaScreen,
+  PublicarEmergenciaScreen,
+  PerfilScreen
+} from '../screens';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();

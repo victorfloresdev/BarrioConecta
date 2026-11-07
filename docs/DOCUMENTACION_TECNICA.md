@@ -12,10 +12,65 @@
 
 ### Stack Tecnológico
 - **Framework Móvil:** React Native con Expo SDK 58 (React 19).
+- **Estructura Arquitectónica:** React Idiomático Modular (Context API, Custom Hooks, Constants, Utils, Services y Barrel Exports).
 - **Estilos:** Tailwind CSS v3 mediante **NativeWind v4** (Design System "Civic Hearth").
 - **Navegación:** `@react-navigation/native-stack` y `@react-navigation/bottom-tabs` v7.
 - **Iconografía:** `@expo/vector-icons` (Google Material Icons).
 - **Capa de Datos:** Backend simulado desacoplado (`src/services/api.js`) sobre `src/mockData.js`, preparado para migración transparente a API REST.
+
+### Estructura Canónica de Directorios (React)
+```text
+BarrioConecta/
+├── App.jsx                     # Componente raíz con SafeAreaProvider y AuthProvider
+├── index.js                    # Entry point de Expo con registro de componente raíz
+├── global.css                  # Directivas de NativeWind / Tailwind
+├── tailwind.config.js          # Tokens de diseño Civic Hearth y paleta comunitaria
+├── src/
+│   ├── components/             # Componentes visuales reutilizables (.jsx)
+│   │   ├── CivicIcon.jsx       # Iconografía accesible con mapeo semántico
+│   │   ├── TutorialModal.jsx   # Modal accesible para adultos mayores
+│   │   └── index.js            # Barrel export de componentes
+│   ├── constants/              # Constantes de rutas, tokens de color y tamaños
+│   │   ├── routes.js           # Diccionario centralizado de rutas
+│   │   ├── theme.js            # Colores y métricas del diseño Civic Hearth
+│   │   └── index.js            # Barrel export de constantes
+│   ├── context/                # Estado global con React Context API
+│   │   ├── AuthContext.jsx     # Proveedor de autenticación, sesión y usuario activo
+│   │   └── index.js            # Barrel export de contextos
+│   ├── hooks/                  # Custom React Hooks para lógica desacoplada
+│   │   ├── useAuth.js          # Hook de consumo de AuthContext
+│   │   ├── useEconomiaLocal.js # Hook para filtrado, búsqueda y visto bueno vecinal
+│   │   ├── useEconomiaSolidaria.js # Hook para solicitudes y ofertas solidarias
+│   │   ├── useEmergencias.js   # Hook para contingencias y tablero humanitario
+│   │   └── index.js            # Barrel export de custom hooks
+│   ├── navigation/             # Configuración de navegadores de React Navigation
+│   │   ├── AppNavigator.jsx    # Stack Navigator y Bottom Tab Navigator
+│   │   └── index.js            # Barrel export de navegación
+│   ├── screens/                # Vistas principales de la aplicación (.jsx)
+│   │   ├── LoginScreen.jsx
+│   │   ├── RegisterScreen.jsx
+│   │   ├── EconomiaLocalScreen.jsx
+│   │   ├── DetalleEconomiaLocalScreen.jsx
+│   │   ├── EconomiaSolidariaScreen.jsx
+│   │   ├── DetalleSolidariaScreen.jsx
+│   │   ├── TableroEmergenciasScreen.jsx
+│   │   ├── DetalleEmergenciaScreen.jsx
+│   │   ├── PublicarPaso1Screen.jsx
+│   │   ├── PublicarPaso2Screen.jsx
+│   │   ├── PublicarComercioScreen.jsx
+│   │   ├── PublicarSolidariaScreen.jsx
+│   │   ├── PublicarEmergenciaScreen.jsx
+│   │   ├── PerfilScreen.jsx
+│   │   └── index.js            # Barrel export de pantallas
+│   ├── services/               # Clientes de red y backend simulado
+│   │   ├── api.js              # Capa de abstracción con interruptor USE_MOCK
+│   │   └── index.js            # Barrel export de servicios
+│   ├── utils/                  # Funciones utilitarias y formateadores
+│   │   ├── formatters.js       # Formato de soles, distancias y teléfonos
+│   │   ├── validators.js       # Validaciones de entradas de usuario
+│   │   └── index.js            # Barrel export de utils
+│   └── mockData.js             # Base de datos simulada con estructura oficial
+```
 
 ---
 
@@ -25,20 +80,20 @@ Cada una de las pantallas diseñadas en Stitch fue minuciosamente adaptada respe
 
 | # | Pantalla en Stitch | Componente en React Native | Ruta / Navegación |
 |---|---|---|---|
-| 1 | `inicio_de_sesi_n_vecired` | `src/screens/LoginScreen.js` | Stack: `Login` |
-| 2 | `registro_nete_a_tu_barrio` | `src/screens/RegisterScreen.js` | Stack: `Register` |
-| 3 | `vista_principal_econom_a_local` | `src/screens/EconomiaLocalScreen.js` | Tab: `EconomiaLocalTab` |
-| 4 | `detalle_de_publicaci_n_econom_a_local` | `src/screens/DetalleEconomiaLocalScreen.js` | Stack: `DetalleEconomiaLocal` |
-| 5 | `muro_de_apoyo_vecinal_econom_a_solidaria` | `src/screens/EconomiaSolidariaScreen.js` | Tab: `EconomiaSolidariaTab` |
-| 6 | `detalle_de_solicitud_solidaria` | `src/screens/DetalleSolidariaScreen.js` | Stack: `DetalleSolidaria` |
-| 7 | `tablero_humanitario_emergencias` | `src/screens/TableroEmergenciasScreen.js` | Tab: `EmergenciasTab` |
-| 8 | `detalle_de_emergencia_recurso_cr_tico` | `src/screens/DetalleEmergenciaScreen.js` | Stack: `DetalleEmergencia` |
-| 9 | `selecci_n_de_publicaci_n_paso_1_de_3` | `src/screens/PublicarPaso1Screen.js` | Stack: `PublicarPaso1` (Paso 1 de 2: Comercio, Solidaridad, Emergencia) |
-| 10 | Formulario Comercio | `src/screens/PublicarComercioScreen.js` | Stack: `PublicarComercio` (Paso 2 de 2: Selector Producto o Servicio) |
-| 11 | Formulario Solidario | `src/screens/PublicarSolidariaScreen.js` | Stack: `PublicarSolidaria` (Paso 2 de 2: Necesito u Ofrezco Ayuda) |
-| 12 | Formulario Emergencia | `src/screens/PublicarEmergenciaScreen.js` | Stack: `PublicarEmergencia` (Paso 2 de 2: Necesidad Crítica Comunitaria) |
-| 13 | — Transversal — | `src/screens/PerfilScreen.js` | Tab: `PerfilTab` y Stack: `Perfil` |
-| 14 | — Accesibilidad — | `src/components/TutorialModal.js` | Modal Reabrible (30s, audio y modo adulto mayor) |
+| 1 | `inicio_de_sesi_n_vecired` | `src/screens/LoginScreen.jsx` | Stack: `Login` |
+| 2 | `registro_nete_a_tu_barrio` | `src/screens/RegisterScreen.jsx` | Stack: `Register` |
+| 3 | `vista_principal_econom_a_local` | `src/screens/EconomiaLocalScreen.jsx` | Tab: `EconomiaLocalTab` |
+| 4 | `detalle_de_publicaci_n_econom_a_local` | `src/screens/DetalleEconomiaLocalScreen.jsx` | Stack: `DetalleEconomiaLocal` |
+| 5 | `muro_de_apoyo_vecinal_econom_a_solidaria` | `src/screens/EconomiaSolidariaScreen.jsx` | Tab: `EconomiaSolidariaTab` |
+| 6 | `detalle_de_solicitud_solidaria` | `src/screens/DetalleSolidariaScreen.jsx` | Stack: `DetalleSolidaria` |
+| 7 | `tablero_humanitario_emergencias` | `src/screens/TableroEmergenciasScreen.jsx` | Tab: `EmergenciasTab` |
+| 8 | `detalle_de_emergencia_recurso_cr_tico` | `src/screens/DetalleEmergenciaScreen.jsx` | Stack: `DetalleEmergencia` |
+| 9 | `selecci_n_de_publicaci_n_paso_1_de_3` | `src/screens/PublicarPaso1Screen.jsx` | Stack: `PublicarPaso1` (Paso 1 de 2: Comercio, Solidaridad, Emergencia) |
+| 10 | Formulario Comercio | `src/screens/PublicarComercioScreen.jsx` | Stack: `PublicarComercio` (Paso 2 de 2: Selector Producto o Servicio) |
+| 11 | Formulario Solidario | `src/screens/PublicarSolidariaScreen.jsx` | Stack: `PublicarSolidaria` (Paso 2 de 2: Necesito u Ofrezco Ayuda) |
+| 12 | Formulario Emergencia | `src/screens/PublicarEmergenciaScreen.jsx` | Stack: `PublicarEmergencia` (Paso 2 de 2: Necesidad Crítica Comunitaria) |
+| 13 | — Transversal — | `src/screens/PerfilScreen.jsx` | Tab: `PerfilTab` y Stack: `Perfil` |
+| 14 | — Accesibilidad — | `src/components/TutorialModal.jsx` | Modal Reabrible (30s, audio y modo adulto mayor) |
 
 ---
 
