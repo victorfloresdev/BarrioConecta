@@ -33,10 +33,12 @@ Cada una de las pantallas diseñadas en Stitch fue minuciosamente adaptada respe
 | 6 | `detalle_de_solicitud_solidaria` | `src/screens/DetalleSolidariaScreen.js` | Stack: `DetalleSolidaria` |
 | 7 | `tablero_humanitario_emergencias` | `src/screens/TableroEmergenciasScreen.js` | Tab: `EmergenciasTab` |
 | 8 | `detalle_de_emergencia_recurso_cr_tico` | `src/screens/DetalleEmergenciaScreen.js` | Stack: `DetalleEmergencia` |
-| 9 | `selecci_n_de_publicaci_n_paso_1_de_3` | `src/screens/PublicarPaso1Screen.js` | Stack: `PublicarPaso1` |
-| 10 | `creaci_n_y_publicaci_n_paso_2_de_3` | `src/screens/PublicarPaso2Screen.js` | Stack: `PublicarPaso2` |
-| 11 | — Transversal — | `src/screens/PerfilScreen.js` | Tab: `PerfilTab` y Stack: `Perfil` |
-| 12 | — Accesibilidad — | `src/components/TutorialModal.js` | Modal Reabrible (30s, audio y modo adulto mayor) |
+| 9 | `selecci_n_de_publicaci_n_paso_1_de_3` | `src/screens/PublicarPaso1Screen.js` | Stack: `PublicarPaso1` (Paso 1 de 2: Comercio, Solidaridad, Emergencia) |
+| 10 | Formulario Comercio | `src/screens/PublicarComercioScreen.js` | Stack: `PublicarComercio` (Paso 2 de 2: Selector Producto o Servicio) |
+| 11 | Formulario Solidario | `src/screens/PublicarSolidariaScreen.js` | Stack: `PublicarSolidaria` (Paso 2 de 2: Necesito u Ofrezco Ayuda) |
+| 12 | Formulario Emergencia | `src/screens/PublicarEmergenciaScreen.js` | Stack: `PublicarEmergencia` (Paso 2 de 2: Necesidad Crítica Comunitaria) |
+| 13 | — Transversal — | `src/screens/PerfilScreen.js` | Tab: `PerfilTab` y Stack: `Perfil` |
+| 14 | — Accesibilidad — | `src/components/TutorialModal.js` | Modal Reabrible (30s, audio y modo adulto mayor) |
 
 ---
 
@@ -157,3 +159,28 @@ Para cambiar de backend simulado a la API REST del equipo de backend:
    - Aviso permanente en el encabezado de emergencias indicando que se trata de un canal vecinal no oficial.
    - Enlaces telefónicos directos con un toque a los números de emergencia del Perú: **105** (Policía), **116** (Bomberos), **115** (Defensa Civil / INDECI) y **106** (SAMU).
    - Botón de auxilio por SMS para zonas sin conexión de datos móviles.
+
+---
+
+## 6. Reglas de Negocio y Flujos Especializados
+
+1. **Bloqueo de Auto-Visto Bueno Vecinal:**
+   - Para salvaguardar la confianza comunitaria, ningún usuario puede otorgarse "visto bueno" o recomendación a sus propias publicaciones.
+   - Tanto `EconomiaLocalScreen` como `DetalleEconomiaLocalScreen` identifican `item.autor_id === usuarioActual.id`, mostrando el badge informativo *"Tu publicación"* y deshabilitando la interacción de auto-voto.
+   - A nivel de capa de datos (`apiService.toggleVistoBueno`), se valida la autoría y se retorna `{ success: false, motivo: 'auto_voto_prohibido' }`.
+
+2. **Flujo de Publicación Unificado en 2 Pasos:**
+   - **Paso 1 de 2 (`PublicarPaso1Screen`):** Selector de 3 categorías principales sin fragmentación ni textos superfluos:
+     1. *Ofrecer un producto o servicio*
+     2. *Solicitar ayuda vecinal*
+     3. *Solicitud de emergencia*
+   - **Paso 2 de 2:** Formularios especializados por propósito:
+     - `PublicarComercioScreen`: Selector toggle entre Producto o Servicio, categorías dinámicas, modalidad de cobro y área de visibilidad vecinal (2 km).
+     - `PublicarSolidariaScreen`: Selector de Muro entre Necesito u Ofrezco ayuda, punto de encuentro público seguro, horario y urgencia.
+     - `PublicarEmergenciaScreen`: Necesidad crítica comunitaria (agua, víveres, drenaje, primeros auxilios), personas en riesgo y zona con referencia vecinal.
+
+3. **Navegación Contextual al Publicar:**
+   - Tras registrar un nuevo anuncio en Comercio, la app redirige directamente a la pestaña `EconomiaLocalTab`.
+   - Tras registrar una solicitud de ayuda, redirige a `EconomiaSolidariaTab`.
+   - Tras reportar una emergencia crítica, redirige a `EmergenciasTab`.
+   - La nueva publicación aparece inmediatamente al tope de la lista gracias a la reactividad de `apiService`.
