@@ -15,18 +15,29 @@ import { mockData } from '../mockData';
 import apiService from '../services/api';
 
 export const DetalleEconomiaLocalScreen = ({ route, navigation }) => {
-  // Mapeo directo de variables a través de route.params
   const item = route.params?.item || mockData.economia_local[0];
+  const usuarioActual = apiService.getUsuarioActual();
+  const esPropia = item.autor_id === usuarioActual.id;
 
   const [vistosBuenos, setVistosBuenos] = useState(item.vistos_buenos || 12);
   const [recomendo, setRecomendo] = useState(item.visto_bueno_activo || false);
   const [siguiendo, setSiguiendo] = useState(false);
 
   const toggleRecomendacion = async () => {
-    const res = await apiService.toggleVistoBueno(item.id);
+    if (esPropia) {
+      Alert.alert(
+        'Tu propia publicación',
+        'No puedes dar visto bueno a tus propias publicaciones. La confianza vecinal se basa en recomendaciones de tus vecinos.'
+      );
+      return;
+    }
+
+    const res = await apiService.toggleVistoBueno(item.id, usuarioActual.id);
     if (res.success) {
       setVistosBuenos(res.vistos_buenos);
       setRecomendo(res.activo);
+    } else if (res.motivo === 'auto_voto_prohibido') {
+      Alert.alert('Acción no permitida', res.mensaje);
     } else {
       setRecomendo(!recomendo);
       setVistosBuenos(recomendo ? vistosBuenos - 1 : vistosBuenos + 1);
@@ -61,9 +72,7 @@ export const DetalleEconomiaLocalScreen = ({ route, navigation }) => {
       await Share.share({
         message: `Te recomiendo este servicio de nuestro barrio en BarrioConecta: "${item.titulo}" por ${item.vendedor.nombre_publico}. Avalado por ${item.vendedor.sello_avalador}.`
       });
-    } catch (e) {
-      // Ignorar si el usuario cancela
-    }
+    } catch (e) {}
   };
 
   const handleReport = () => {
@@ -88,7 +97,7 @@ export const DetalleEconomiaLocalScreen = ({ route, navigation }) => {
   return (
     <SafeAreaView className="flex-1 bg-surface">
       {/* Header Fijo */}
-      <View className="h-14 px-4 bg-white/90 border-b border-gray-200 flex-row items-center justify-between">
+      <View className="h-14 px-4 bg-white border-b border-gray-200 flex-row items-center justify-between">
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           className="flex-row items-center gap-1.5 py-1"
@@ -96,7 +105,7 @@ export const DetalleEconomiaLocalScreen = ({ route, navigation }) => {
           <CivicIcon name="arrow-back" size={20} color="#141b2b" />
           <Text className="text-sm font-semibold text-gray-900">Volver</Text>
         </TouchableOpacity>
-        <Text className="text-sm font-bold text-gray-900">Detalle De Publicación</Text>
+        <Text className="text-sm font-bold text-gray-900">Detalle de Publicación</Text>
         <View className="flex-row items-center gap-1">
           <TouchableOpacity onPress={handleShare} className="p-2">
             <CivicIcon name="share" size={20} color="#3e4a3d" />
@@ -146,7 +155,7 @@ export const DetalleEconomiaLocalScreen = ({ route, navigation }) => {
           </View>
         </View>
 
-        {/* Foto de Muestra con Etiqueta del Barrio */}
+        {/* Foto de Muestra */}
         <View className="relative w-full h-52 rounded-2xl overflow-hidden bg-gray-100 mb-4 border border-gray-200">
           <Image
             source={{
@@ -157,14 +166,14 @@ export const DetalleEconomiaLocalScreen = ({ route, navigation }) => {
             className="w-full h-full"
             resizeMode="cover"
           />
-          <View className="absolute bottom-3 left-3 right-3 flex-row justify-between items-center bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg">
+          <View className="absolute bottom-3 left-3 right-3 flex-row justify-between items-center bg-black/60 px-3 py-1.5 rounded-lg">
             <View className="flex-row items-center gap-1.5">
               <CivicIcon name="photo-camera" size={14} color="#ffffff" />
               <Text className="text-xs text-white font-medium">
                 Trabajo reciente en Calle Los Naranjos
               </Text>
             </View>
-            <Text className="text-xs text-white/80 font-bold">1 / 3</Text>
+            <Text className="text-xs text-white font-bold">1 de 3</Text>
           </View>
         </View>
 
@@ -178,7 +187,7 @@ export const DetalleEconomiaLocalScreen = ({ route, navigation }) => {
             {item.descripcion}
           </Text>
 
-          {/* Micro Perks */}
+          {/* Perks */}
           <View className="flex-row gap-2">
             <View className="flex-1 flex-row items-center gap-1.5 bg-gray-50 border border-gray-200 px-2.5 py-2 rounded-xl">
               <CivicIcon name="check-circle" size={15} color="#006b2c" />
@@ -215,21 +224,23 @@ export const DetalleEconomiaLocalScreen = ({ route, navigation }) => {
                 <View className="flex-row items-center gap-1">
                   <CivicIcon name="near-me" size={13} color="#006194" />
                   <Text className="text-xs text-gray-500 font-medium">
-                    {item.vendedor.zona_aproximada} (a {item.distancia_km} km)
+                    {item.vendedor.zona_aproximada} • A {item.distancia_km} km
                   </Text>
                 </View>
               </View>
             </View>
-            <TouchableOpacity
-              onPress={() => setSiguiendo(!siguiendo)}
-              className={`px-3 py-1.5 rounded-lg border ${
-                siguiendo ? 'bg-green-100 border-green-600' : 'bg-gray-100 border-gray-200'
-              }`}
-            >
-              <Text className="text-xs font-bold text-gray-800">
-                {siguiendo ? 'Siguiendo' : 'Seguir'}
-              </Text>
-            </TouchableOpacity>
+            {!esPropia && (
+              <TouchableOpacity
+                onPress={() => setSiguiendo(!siguiendo)}
+                className={`px-3 py-1.5 rounded-lg border ${
+                  siguiendo ? 'bg-green-100 border-green-600' : 'bg-gray-100 border-gray-200'
+                }`}
+              >
+                <Text className="text-xs font-bold text-gray-800">
+                  {siguiendo ? 'Siguiendo' : 'Seguir'}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
 
           {/* Sello de Avalador */}
@@ -239,7 +250,7 @@ export const DetalleEconomiaLocalScreen = ({ route, navigation }) => {
             </View>
             <View className="flex-1">
               <Text className="text-xs font-bold text-green-900">
-                Avalado por: {item.vendedor.sello_avalador}
+                Avalado por {item.vendedor.sello_avalador}
               </Text>
               <Text className="text-[11px] text-gray-600 mt-0.5 leading-tight">
                 {item.vendedor.descripcion_avalador ||
@@ -248,7 +259,7 @@ export const DetalleEconomiaLocalScreen = ({ route, navigation }) => {
             </View>
           </View>
 
-          {/* Contador de Vistos Buenos y Acción de Recomendar */}
+          {/* Contador y Botón con Regla de No Auto-Voto */}
           <View className="flex-row items-center justify-between pt-2 border-t border-gray-100">
             <View className="flex-row items-center gap-1.5">
               <CivicIcon name="thumb-up" size={16} color="#006b2c" />
@@ -256,32 +267,39 @@ export const DetalleEconomiaLocalScreen = ({ route, navigation }) => {
                 {vistosBuenos} vecinos recomiendan esto
               </Text>
             </View>
-            <TouchableOpacity
-              onPress={toggleRecomendacion}
-              className={`flex-row items-center gap-1.5 px-3 py-1.5 rounded-lg border ${
-                recomendo ? 'bg-green-100 border-green-700' : 'bg-gray-50 border-gray-200'
-              }`}
-            >
-              <CivicIcon
-                name="thumb-up"
-                size={14}
-                color={recomendo ? '#006b2c' : '#6e7b6c'}
-              />
-              <Text className="text-xs font-bold text-gray-800">
-                {recomendo ? 'Recomendado' : 'Recomendar'}
-              </Text>
-            </TouchableOpacity>
+
+            {esPropia ? (
+              <View className="px-3 py-1.5 rounded-lg bg-gray-100 border border-gray-200 flex-row items-center gap-1.5">
+                <CivicIcon name="person" size={14} color="#6e7b6c" />
+                <Text className="text-xs font-semibold text-gray-600">Tu publicación</Text>
+              </View>
+            ) : (
+              <TouchableOpacity
+                onPress={toggleRecomendacion}
+                className={`flex-row items-center gap-1.5 px-3 py-1.5 rounded-lg border ${
+                  recomendo ? 'bg-green-100 border-green-700' : 'bg-gray-50 border-gray-200'
+                }`}
+              >
+                <CivicIcon
+                  name="thumb-up"
+                  size={14}
+                  color={recomendo ? '#006b2c' : '#6e7b6c'}
+                />
+                <Text className="text-xs font-bold text-gray-800">
+                  {recomendo ? 'Recomendado' : 'Recomendar'}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
 
-        {/* Ubicación Aproximada con Protección de Privacidad */}
+        {/* Ubicación Aproximada */}
         <View className="bg-white rounded-2xl p-4 mb-24 border border-gray-200 shadow-sm">
           <View className="flex-row justify-between items-center mb-2">
             <Text className="text-sm font-bold text-gray-900">Ubicación aproximada</Text>
             <Text className="text-xs font-semibold text-sky-700">Privacidad vecinal activa</Text>
           </View>
           <View className="relative w-full h-36 rounded-xl overflow-hidden bg-sky-50 border border-sky-100 items-center justify-center">
-            {/* Círculo de Cobertura */}
             <View className="w-28 h-28 rounded-full bg-green-500/20 items-center justify-center">
               <View className="w-16 h-16 rounded-full bg-green-500/30 items-center justify-center">
                 <View className="w-8 h-8 rounded-full bg-green-700 items-center justify-center shadow-md">
@@ -289,7 +307,7 @@ export const DetalleEconomiaLocalScreen = ({ route, navigation }) => {
                 </View>
               </View>
             </View>
-            <View className="absolute bottom-2 bg-white/90 backdrop-blur px-3 py-1 rounded-full border border-gray-200">
+            <View className="absolute bottom-2 bg-white/90 px-3 py-1 rounded-full border border-gray-200">
               <Text className="text-[11px] font-semibold text-gray-800">
                 Sector 2, Piura • Radio estimado de 800m
               </Text>
@@ -299,7 +317,7 @@ export const DetalleEconomiaLocalScreen = ({ route, navigation }) => {
       </ScrollView>
 
       {/* Barra de Contacto Fija Inferior */}
-      <View className="absolute bottom-0 left-0 right-0 bg-white/95 border-t border-gray-200 px-4 py-3 flex-row gap-3">
+      <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 flex-row gap-3">
         <TouchableOpacity
           onPress={handleWhatsApp}
           className="flex-1 bg-green-700 active:bg-green-800 py-3.5 rounded-xl flex-row items-center justify-center gap-2 shadow-sm"

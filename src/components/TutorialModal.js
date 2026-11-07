@@ -30,7 +30,7 @@ export const TutorialModal = ({ visible, onClose }) => {
     {
       titulo: '3. Tablero Humanitario en Emergencias',
       subtitulo: 'Respuesta rápida en situaciones críticas',
-      desc: 'Ante lluvias, huaicos o sismos, coordina agua, víveres y herramientas con tu cuadrilla barrial y números de auxilio directo (105, 116, 115, 106).',
+      desc: 'Ante lluvias, huaicos o sismos, coordina agua, víveres y herramientas con tu cuadrilla barrial y números de auxilio directo como 105 o 116.',
       icono: 'warning',
       color: '#b61722'
     },
@@ -59,7 +59,7 @@ export const TutorialModal = ({ visible, onClose }) => {
                 <CivicIcon name={actual.icono} size={24} color={actual.color} />
               </View>
               <Text className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                Tutorial ({paso + 1}/5)
+                Guía paso {paso + 1} de 5
               </Text>
             </View>
             <TouchableOpacity onPress={onClose} className="p-1">

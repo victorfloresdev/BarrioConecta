@@ -173,7 +173,7 @@ export const PublicarPaso2Screen = ({ route, navigation }) => {
           </View>
           <View className="flex-row gap-2">
             {[
-              { id: 'monto_fijo', label: 'Monto fijo (S/)', icon: 'payments' },
+              { id: 'monto_fijo', label: 'Monto fijo en soles', icon: 'payments' },
               { id: 'a_convenir', label: 'A convenir', icon: 'handshake' },
               { id: 'trueque', label: 'Trueque', icon: 'swap-horiz' }
             ].map(p => (
@@ -221,7 +221,7 @@ export const PublicarPaso2Screen = ({ route, navigation }) => {
         {/* Campo 5: Foto / Muestras de Trabajo */}
         <View className="mb-4">
           <Text className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-            Foto del oficio (opcional)
+            Foto del oficio opcional
           </Text>
           <View className="flex-row gap-3">
             <TouchableOpacity

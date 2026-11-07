@@ -53,7 +53,7 @@ export const DetalleSolidariaScreen = ({ route, navigation }) => {
   const handleReportAcoso = () => {
     Alert.alert(
       'Seguridad y Prevención',
-      'Si detectas algún comportamiento sospechoso o acoso, puedes llamar de inmediato al 105 (Policía Nacional) o reportar al moderador comunitario.',
+      'Si detectas algún comportamiento sospechoso o acoso, puedes llamar de inmediato al 105 de la Policía Nacional o reportar al moderador comunitario.',
       [
         { text: 'Llamar al 105', onPress: () => Linking.openURL('tel:105') },
         { text: 'Cerrar', style: 'cancel' }

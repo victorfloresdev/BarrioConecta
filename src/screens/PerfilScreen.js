@@ -108,7 +108,7 @@ export const PerfilScreen = ({ navigation }) => {
                 <CivicIcon name="wifi-off" size={18} color="#006194" />
               </View>
               <View>
-                <Text className="text-sm font-bold text-gray-900">Modo Sin Internet (Offline)</Text>
+                <Text className="text-sm font-bold text-gray-900">Modo Sin Internet</Text>
                 <Text className="text-xs text-gray-500">Caché y cola de envío activa</Text>
               </View>
             </View>

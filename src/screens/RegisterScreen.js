@@ -102,7 +102,7 @@ export const RegisterScreen = ({ navigation }) => {
             {/* Teléfono */}
             <View className="mt-3">
               <Text className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-                Número de celular (para verificación)
+                Número de celular para verificación
               </Text>
               <View className="flex-row items-center bg-white border border-gray-200 rounded-xl px-4 py-3">
                 <View className="flex-row items-center gap-1.5">

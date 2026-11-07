@@ -7,7 +7,8 @@ import {
   Image,
   TextInput,
   SafeAreaView,
-  RefreshControl
+  RefreshControl,
+  Alert
 } from 'react-native';
 import { CivicIcon } from '../components/CivicIcon';
 import apiService from '../services/api';
@@ -19,6 +20,8 @@ export const EconomiaLocalScreen = ({ navigation }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+
+  const usuarioActual = apiService.getUsuarioActual();
 
   // Carga de datos mediante el backend simulado
   const cargarDatos = async () => {
@@ -36,12 +39,20 @@ export const EconomiaLocalScreen = ({ navigation }) => {
     cargarDatos();
   }, [activeTab, activeFilter, busqueda]);
 
-  // Manejar el Visto Bueno Vecinal en tiempo real
-  const handleVistoBueno = async (id) => {
-    const res = await apiService.toggleVistoBueno(id);
+  // Manejar el Visto Bueno Vecinal con validación estricta de NO auto-voto
+  const handleVistoBueno = async (item) => {
+    if (item.autor_id === usuarioActual.id) {
+      Alert.alert(
+        'Tu propia publicación',
+        'No puedes otorgar visto bueno a tus propias publicaciones. La confianza vecinal se basa en recomendaciones de tus vecinos.'
+      );
+      return;
+    }
+
+    const res = await apiService.toggleVistoBueno(item.id, usuarioActual.id);
     if (res.success) {
       setItems(prev => prev.map(p => {
-        if (p.id === id) {
+        if (p.id === item.id) {
           return {
             ...p,
             vistos_buenos: res.vistos_buenos,
@@ -50,101 +61,128 @@ export const EconomiaLocalScreen = ({ navigation }) => {
         }
         return p;
       }));
+    } else if (res.motivo === 'auto_voto_prohibido') {
+      Alert.alert('Acción no permitida', res.mensaje);
     }
   };
 
-  const renderCard = ({ item }) => (
-    <TouchableOpacity
-      activeOpacity={0.9}
-      onPress={() => navigation.navigate('DetalleEconomiaLocal', { item })}
-      className="bg-white rounded-2xl p-4 mb-3.5 border border-gray-200 shadow-sm"
-    >
-      {/* Top Header Card */}
-      <View className="flex-row items-center justify-between mb-2">
-        <Text className="text-xs font-bold tracking-wider uppercase text-gray-500">
-          {item.categoria_label || item.categoria}
-        </Text>
-        <View className="flex-row items-center gap-1 bg-green-50 px-2.5 py-0.5 rounded-md">
-          <CivicIcon name="schedule" size={13} color="#006b2c" />
-          <Text className="text-xs font-semibold text-green-700">
-            {item.disponibilidad || 'Disponible hoy'}
+  const renderCard = ({ item }) => {
+    const esPropia = item.autor_id === usuarioActual.id;
+
+    return (
+      <TouchableOpacity
+        activeOpacity={0.9}
+        onPress={() => navigation.navigate('DetalleEconomiaLocal', { item })}
+        className="bg-white rounded-2xl p-4 mb-3.5 border border-gray-200 shadow-sm"
+      >
+        {/* Top Header Card */}
+        <View className="flex-row items-center justify-between mb-2">
+          <Text className="text-xs font-bold tracking-wider uppercase text-gray-500">
+            {item.categoria_label || item.categoria}
           </Text>
-        </View>
-      </View>
-
-      {/* Título y Metadatos */}
-      <Text className="text-base font-bold text-gray-900 leading-snug mb-1">
-        {item.titulo}
-      </Text>
-      <View className="flex-row items-center gap-2 mb-3">
-        <View className="flex-row items-center gap-0.5">
-          <CivicIcon name="location-on" size={15} color="#006b2c" />
-          <Text className="text-xs text-gray-600 font-medium">
-            A {item.distancia_km} km
-          </Text>
-        </View>
-        <Text className="text-gray-300">•</Text>
-        <Text className="text-xs font-bold text-gray-900">
-          {item.precio_tipo === 'a_convenir'
-            ? 'Precio a convenir'
-            : item.precio_monto ? `S/ ${item.precio_monto.toFixed(2)}` : 'Sin dinero / Trueque'}
-        </Text>
-      </View>
-
-      {/* Foto / Muestra del Trabajo */}
-      {item.imagen && (
-        <View className="w-full h-32 rounded-xl overflow-hidden bg-gray-100 mb-3">
-          <Image
-            source={{ uri: item.imagen }}
-            className="w-full h-full"
-            resizeMode="cover"
-          />
-        </View>
-      )}
-
-      {/* Separador Tonal */}
-      <View className="w-full h-[1px] bg-gray-100 mb-3" />
-
-      {/* Footer de Tarjeta con Sello de Confianza y Visto Bueno */}
-      <View className="flex-row items-center justify-between">
-        <View className="flex-1 pr-2">
-          <Text className="text-sm font-bold text-gray-900" numberOfLines={1}>
-            {item.vendedor.nombre_publico}
-          </Text>
-          <View className="flex-row items-center gap-1 mt-0.5 bg-gray-100 px-2 py-0.5 rounded-md self-start">
-            <CivicIcon name="handshake" size={12} color="#006b2c" />
-            <Text className="text-[11px] font-semibold text-green-800" numberOfLines={1}>
-              Avalado por: {item.vendedor.sello_avalador}
+          <View className="flex-row items-center gap-1 bg-green-50 px-2.5 py-0.5 rounded-md">
+            <CivicIcon name="schedule" size={13} color="#006b2c" />
+            <Text className="text-xs font-semibold text-green-700">
+              {item.disponibilidad || 'Disponible hoy'}
             </Text>
           </View>
         </View>
 
-        {/* Botón interactivo de Visto Bueno */}
-        <TouchableOpacity
-          onPress={() => handleVistoBueno(item.id)}
-          className={`flex-row items-center gap-1.5 px-3 py-1.5 rounded-lg border ${
-            item.visto_bueno_activo
-              ? 'bg-green-100 border-green-600'
-              : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-          }`}
-        >
-          <CivicIcon
-            name="thumb-up"
-            size={16}
-            color={item.visto_bueno_activo ? '#006b2c' : '#6e7b6c'}
-          />
-          <Text className={`text-xs font-bold ${item.visto_bueno_activo ? 'text-green-800' : 'text-gray-700'}`}>
-            {item.vistos_buenos}
+        {/* Título y Metadatos */}
+        <Text className="text-base font-bold text-gray-900 leading-snug mb-1">
+          {item.titulo}
+        </Text>
+        <View className="flex-row items-center gap-2 mb-3">
+          <View className="flex-row items-center gap-0.5">
+            <CivicIcon name="location-on" size={15} color="#006b2c" />
+            <Text className="text-xs text-gray-600 font-medium">
+              A {item.distancia_km} km
+            </Text>
+          </View>
+          <Text className="text-gray-300">•</Text>
+          <Text className="text-xs font-bold text-gray-900">
+            {item.precio_tipo === 'a_convenir'
+              ? 'Precio a convenir'
+              : item.precio_monto ? `S/ ${item.precio_monto.toFixed(2)}` : 'Sin dinero o trueque'}
           </Text>
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
-  );
+        </View>
+
+        {/* Foto / Muestra del Trabajo */}
+        {item.imagen && (
+          <View className="w-full h-32 rounded-xl overflow-hidden bg-gray-100 mb-3">
+            <Image
+              source={{ uri: item.imagen }}
+              className="w-full h-full"
+              resizeMode="cover"
+            />
+          </View>
+        )}
+
+        {/* Separador Tonal */}
+        <View className="w-full h-[1px] bg-gray-100 mb-3" />
+
+        {/* Footer de Tarjeta */}
+        <View className="flex-row items-center justify-between">
+          <View className="flex-1 pr-2">
+            <Text className="text-sm font-bold text-gray-900" numberOfLines={1}>
+              {item.vendedor.nombre_publico}
+            </Text>
+            <View className="flex-row items-center gap-1 mt-0.5 bg-gray-100 px-2 py-0.5 rounded-md self-start">
+              <CivicIcon name="handshake" size={12} color="#006b2c" />
+              <Text className="text-[11px] font-semibold text-green-800" numberOfLines={1}>
+                Avalado por {item.vendedor.sello_avalador}
+              </Text>
+            </View>
+          </View>
+
+          {/* Botón de Visto Bueno con Validación de Autoría */}
+          {esPropia ? (
+            <TouchableOpacity
+              onPress={() =>
+                Alert.alert(
+                  'Tu propia publicación',
+                  'No puedes dar visto bueno a tus propias publicaciones.'
+                )
+              }
+              className="flex-row items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 border border-gray-200"
+            >
+              <CivicIcon name="person" size={14} color="#6e7b6c" />
+              <Text className="text-xs font-semibold text-gray-600">
+                Tuya • {item.vistos_buenos}
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              onPress={() => handleVistoBueno(item)}
+              className={`flex-row items-center gap-1.5 px-3 py-1.5 rounded-lg border ${
+                item.visto_bueno_activo
+                  ? 'bg-green-100 border-green-600'
+                  : 'bg-gray-50 border-gray-200'
+              }`}
+            >
+              <CivicIcon
+                name="thumb-up"
+                size={15}
+                color={item.visto_bueno_activo ? '#006b2c' : '#6e7b6c'}
+              />
+              <Text
+                className={`text-xs font-bold ${
+                  item.visto_bueno_activo ? 'text-green-800' : 'text-gray-700'
+                }`}
+              >
+                {item.vistos_buenos}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-surface">
       {/* Top Header */}
-      <View className="px-4 py-3 bg-white/95 border-b border-gray-200 flex-row items-center justify-between">
+      <View className="px-4 py-3 bg-white border-b border-gray-200 flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
           <CivicIcon name="storefront" size={24} color="#006b2c" />
           <Text className="text-lg font-bold text-gray-900">Inicio Comunitario</Text>
@@ -173,7 +211,7 @@ export const EconomiaLocalScreen = ({ navigation }) => {
             <TextInput
               value={busqueda}
               onChangeText={setBusqueda}
-              placeholder="Buscar oficios, gasfitero, pastelitos..."
+              placeholder="Buscar oficios, gasfitero, postres..."
               className="flex-1 ml-2 text-sm text-gray-900"
               autoFocus
             />
@@ -186,7 +224,7 @@ export const EconomiaLocalScreen = ({ navigation }) => {
         </View>
       )}
 
-      {/* Main Container */}
+      {/* Main List */}
       <FlatList
         data={items}
         keyExtractor={item => item.id}
@@ -213,7 +251,7 @@ export const EconomiaLocalScreen = ({ navigation }) => {
               </View>
             </View>
 
-            {/* Segmented Tabs (Servicios | Productos | Trueques) */}
+            {/* Segmented Tabs: Servicios, Productos, Trueques */}
             <View className="flex-row gap-6 mt-3 border-b border-gray-200 pb-2">
               {[
                 { key: 'servicios', label: 'Servicios' },
@@ -280,10 +318,10 @@ export const EconomiaLocalScreen = ({ navigation }) => {
             </View>
             <View className="flex-1">
               <Text className="text-xs font-bold text-gray-900">
-                ¿Eres un negocio del barrio?
+                ¿Tienes un comercio en el barrio?
               </Text>
               <Text className="text-xs text-gray-600 leading-tight">
-                Avalar a vecinos emprendedores fortalece el comercio local.
+                Avalar a vecinos emprendedores fortalece la confianza local.
               </Text>
             </View>
             <TouchableOpacity onPress={() => navigation.navigate('PublicarPaso1')}>

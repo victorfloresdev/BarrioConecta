@@ -17,6 +17,9 @@ import TableroEmergenciasScreen from '../screens/TableroEmergenciasScreen';
 import DetalleEmergenciaScreen from '../screens/DetalleEmergenciaScreen';
 import PublicarPaso1Screen from '../screens/PublicarPaso1Screen';
 import PublicarPaso2Screen from '../screens/PublicarPaso2Screen';
+import PublicarComercioScreen from '../screens/PublicarComercioScreen';
+import PublicarSolidariaScreen from '../screens/PublicarSolidariaScreen';
+import PublicarEmergenciaScreen from '../screens/PublicarEmergenciaScreen';
 import PerfilScreen from '../screens/PerfilScreen';
 
 const Stack = createNativeStackNavigator();
@@ -130,6 +133,9 @@ export default function AppNavigator() {
         <Stack.Screen name="DetalleEmergencia" component={DetalleEmergenciaScreen} />
         <Stack.Screen name="PublicarPaso1" component={PublicarPaso1Screen} />
         <Stack.Screen name="PublicarPaso2" component={PublicarPaso2Screen} />
+        <Stack.Screen name="PublicarComercio" component={PublicarComercioScreen} />
+        <Stack.Screen name="PublicarSolidaria" component={PublicarSolidariaScreen} />
+        <Stack.Screen name="PublicarEmergencia" component={PublicarEmergenciaScreen} />
         <Stack.Screen name="Perfil" component={PerfilScreen} />
       </Stack.Navigator>
     </NavigationContainer>

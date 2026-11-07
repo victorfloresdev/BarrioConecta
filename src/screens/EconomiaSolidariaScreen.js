@@ -238,7 +238,7 @@ export const EconomiaSolidariaScreen = ({ navigation }) => {
               <TextInput
                 value={busqueda}
                 onChangeText={setBusqueda}
-                placeholder="Buscar necesidades (ej. herramientas, movilidad...)"
+                placeholder="Buscar necesidades, herramientas o movilidad..."
                 className="flex-1 ml-2 text-xs text-gray-900"
               />
               <TouchableOpacity onPress={handleVoiceSearch} className="p-1">

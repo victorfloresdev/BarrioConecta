@@ -113,7 +113,7 @@ export const mockData = {
       descripcion: "Lasañas familiares y pastelitos de choclo preparados cada mañana con receta tradicional norteña. Porciones generosas para compartir en familia.",
       precio_tipo: "monto_fijo",
       precio_monto: 18.0,
-      disponibilidad: "Horneado diario (11:00 AM)",
+      disponibilidad: "Horneado diario a las 11:00 AM",
       vendedor: {
         nombre_publico: "Doña Carmen Rivas",
         zona_aproximada: "Sector 4, Piura",
@@ -253,7 +253,7 @@ export const mockData = {
       autor_id: "USR-001",
       tipo_muro: "ofrezco",
       categoria_favor: "Herramientas",
-      titulo: "Presto muletas ortopédicas de aluminio (adulto)",
+      titulo: "Presto muletas ortopédicas de aluminio para adulto",
       descripcion: "Mi hermano ya se recuperó de su esguince. Quedaron desinfectadas y en perfecto estado. Para cualquier vecino que las necesite temporalmente.",
       urgencia: "normal",
       distancia_km: 0.3,
@@ -267,7 +267,7 @@ export const mockData = {
         telefono: "982334455"
       },
       movilidad_segura: {
-        punto_encuentro_publico: "Bodega Don Pepe (Calle Piura)",
+        punto_encuentro_publico: "Bodega Don Pepe en Calle Piura",
         pago_requerido: false,
         horario: "Coordinar por la tarde",
         condiciones: [
@@ -328,7 +328,7 @@ export const mockData = {
       fecha_reporte: "2026-11-07T12:00:00Z",
       estado: "activa",
       recurso_critico: true,
-      personas_en_riesgo: "11 personas (3 familias)",
+      personas_en_riesgo: "11 personas de 3 familias",
       prioridad_motivo: "Corte general de suministro",
       coordinador: {
         nombre: "Carlos P.",
@@ -410,7 +410,7 @@ export const mockData = {
     },
     {
       id: "DIR-03",
-      nombre: "Punto de Agua Potable Comunal (Cisterna EPS)",
+      nombre: "Punto de Agua Potable Comunal Cisterna EPS",
       tipo: "Abastecimiento de Agua",
       direccion: "Parque Infantil Sector 3",
       telefono: "073-322211",
